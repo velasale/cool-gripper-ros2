@@ -9,13 +9,14 @@
 // TODO VALVE
 // TODO SENSOR PRESSURE
 // TODO SENSOR DISTANCE
+// TODO SERVO
 
 
 // libraries
 #include <Wire.h>
 #include <time.h>
 #include <Adafruit_MPRLS.h>
-#include <Adafruit_VL53L0x.h>
+#include <Adafruit_VL53L0X.h>
 #include <Stepper.h>
 
 
@@ -45,10 +46,14 @@ const int TOTAL_DISTANCE = 58 * (200/8)   // 58mm * (200 steps / 1rev) * (1rev /
 
 void setup() {
   // Initialize stepper motor
+
+
+
+  // Serial initialization
+  Serial.begin(9600)
+  while (!Serial);
+  clearInputBuffer();
+
   
-
-
-
-
   
 }
