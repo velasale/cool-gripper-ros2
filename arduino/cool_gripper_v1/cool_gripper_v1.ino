@@ -37,11 +37,12 @@ const int STEP_SPEED = 15;
 const int CLOSING_SPEED = 240;    
 const int CLOSING_SPEED_FAST = 340;
 const int OPENING_SPEED = 330;
-const int TOTAL_DISTANCE = 58 * (200/8)   // 58mm * (200 steps / 1rev) * (1rev / 8mm)
+const int TOTAL_DISTANCE = 58 * (200/8);   // 58mm * (200 steps / 1rev) * (1rev / 8mm)
 
 
 
-// 
+// initializations
+Stepper gripperStepper(STEPS_PER_REVOLUTION, 9, 10, 11, 12);
 
 
 void setup() {
@@ -50,10 +51,32 @@ void setup() {
 
 
   // Serial initialization
-  Serial.begin(9600)
+  Serial.begin(9600);
   while (!Serial);
-  clearInputBuffer();
+  clearInputBuffer();  
+  
+}
 
-  
-  
+
+
+
+
+void motorSteps(int stp_speed, int stp_distance){
+  digitalWrite(ENABLE_PINA, HIGH);
+  digitalWrite(ENABLE_PINB, HIGH);
+
+  gripperStepper.setSpeed(stp_speed);
+  gripperStepper.step(stp_distance);
+
+  digitalWrite(ENABLE_PINA, LOW);
+  digitalWrite(ENABLE_PINB, LOW);
+  delay(100);   
+}
+
+
+
+void clearInputBuffer(){
+  while(Serial.available() > 0){
+    Serial.read();    
+  }
 }
