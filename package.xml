@@ -5,7 +5,7 @@
   <version>0.0.0</version>
   <description>TODO: Package description</description>
   <maintainer email="velasale@oregonstate.edu">Alejo Velasquez</maintainer>
-  <license>GPL-3.0-only</license>
+  <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
