@@ -3,10 +3,15 @@
  * Alejandro Velasquez
  * velasale@oregonstate.edu
  * 09/27/2024
+ *
+ * Colaborators
  */
 
-// TODO STEPPER
+
+
 // TODO VALVE
+
+// TODO STEPPER
 // TODO SENSOR PRESSURE
 // TODO SENSOR DISTANCE
 // TODO SERVO
@@ -20,9 +25,11 @@
 #include <Stepper.h>
 
 
-// pins
-const byte ENABLE_PINA = 8;
-const byte ENABLE_PINB = 13;
+// stepper pins
+const byte ENABLE_PINA = 8;     // pin to enable part A of stepper driver
+const byte ENABLE_PINB = 13;    // pin to enable part B of stepper driver
+// valve pins
+#define VALVE 7;                // pin to turn on/off electric valve
 
 
 
@@ -40,43 +47,139 @@ const int OPENING_SPEED = 330;
 const int TOTAL_DISTANCE = 58 * (200/8);   // 58mm * (200 steps / 1rev) * (1rev / 8mm)
 
 
-
 // initializations
 Stepper gripperStepper(STEPS_PER_REVOLUTION, 9, 10, 11, 12);
+Adafruit_MPRLS mpr = Adafruit_MPRLS(RESET_PIN, EOC_PIN);
+Adafruit_VL53L0X lox = Adafruit_VL53L0X();
+
+
+// Serial read stuff
+const byte numChars = 32;
+char receivedChars[numChars];
+boolean newData = false;
+int dataNumber = 0;
 
 
 void setup() {
-  // Initialize stepper motor
+    // Initialize stepper motor
 
+    // Initialize pressure and distance sensors
+    mpr.begin();
+    lox.begin();
+    lox.startRangeContinuous(10);
 
+    // Serial initialization
+    Serial.begin(9600);
+    while (!Serial);
+    clearInputBuffer();
 
-  // Serial initialization
-  Serial.begin(9600);
-  while (!Serial);
-  clearInputBuffer();  
+    // Initialize VALVE pin as output
+    delay(10);
+    pinMode(VALVE, OUTPUT);
+    delay(10);
+    digitalWrite(VALVE, LOW);
+    delay(10);
   
 }
 
 
+void loop(){
+    //wait for command
+    recWithStartEndMarker();
+
+    //execute command
+    parseCommands();
+
+
+
+}
+
+void vacuumOn(){
+    Serial.println("Arduino: turning vacuum on");
+    digitalWrite(VALVE, HIGH);
+}
+
+
+void vacuumOff(){
+    Serial.println("Arduino: turning vacumm off");
+    digitalWrite(VALVE, LOW);
+}
 
 
 
 void motorSteps(int stp_speed, int stp_distance){
-  digitalWrite(ENABLE_PINA, HIGH);
-  digitalWrite(ENABLE_PINB, HIGH);
+    digitalWrite(ENABLE_PINA, HIGH);
+    digitalWrite(ENABLE_PINB, HIGH);
 
-  gripperStepper.setSpeed(stp_speed);
-  gripperStepper.step(stp_distance);
+    gripperStepper.setSpeed(stp_speed);
+    gripperStepper.step(stp_distance);
 
-  digitalWrite(ENABLE_PINA, LOW);
-  digitalWrite(ENABLE_PINB, LOW);
-  delay(100);   
+    digitalWrite(ENABLE_PINA, LOW);
+    digitalWrite(ENABLE_PINB, LOW);
+    delay(100);
 }
 
 
 
 void clearInputBuffer(){
-  while(Serial.available() > 0){
-    Serial.read();    
-  }
+    while(Serial.available() > 0){
+        Serial.read();
+    }
+}
+
+void recWithStartEndMarker(){
+    static boolean recInProgress = false;
+    static byte ndx = 0;
+    char startMarker = '<';
+    char endMarker = '>';
+    char rc;
+
+    while(Serial.available() > 0 && newData == false){
+        rc = Serial.read();
+        if(recInProgress == true){
+            if (rc != endMarker){
+                receivedChars[ndx] = rc;
+                ndx++;
+                if (ndx >= numChars){
+                    ndx = numChars - 1;
+                }
+            }
+            else{
+                receivedChars[ndx] = '\0'   //terminate string
+                recInProgress = false;
+                ndx = 0;
+                newData = true;
+            }
+        }
+        else if (rc == startMarker){
+            recInProgress = true;
+        }
+    }
+}
+
+
+
+
+
+void parseCommands(){
+    int c = 0;
+    int c_idx = 0;
+    int t_idx = 0;
+    char temp[32];
+
+    if (newData == true){
+        //Convert serial monitor to int and cast as float
+        int len = strlen(receivedChars);
+        c = float atoi(receivedChars);
+        newData = false
+
+        //Manage serial input accordingly
+        if (c==vacuum_on){
+            vacuum_on();
+        }
+        else if (c==vacuum_off){
+            vacuum_off();
+        }
+
+    }
 }
