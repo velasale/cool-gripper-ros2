@@ -19,13 +19,13 @@ from std_msgs.msg import String
 class SuctionGripper(Node):
     def __init__(self):
         # initialize and name the node
-        super().__init__("suction_gripper")
+        super().__init__("cool_gripper")
 
-        # set up publishers
+        # publishers
 
 
-        # set up services
-        self.fingers_service = self.create_service(GripperFingers, 'set_fingers_status', self.fingers_service_callback)
+        # services
+        self.vacuum_service = self.create_service(GripperVacuum, 'set_vacuum_status', self.vacuum_service_callback())
 
 
         # set up Pyserial
@@ -34,7 +34,7 @@ class SuctionGripper(Node):
         try:
             self.my_serial = serial.Serial(arduino_port, baud)
             self.get_logger().info(f"Connected to serial port {arduino_port}")
-            self.timer = self.create(0.1, self.timer_callback) # to continously read the sensors
+            self.timer = self.create(0.1, self.timer_callback)  # to continously read the sensors
         except SerialException as e:
             self.get_logger().info(f"Could not connect to serial port {arduino_port}.")
             print(e)
@@ -42,21 +42,23 @@ class SuctionGripper(Node):
         # variables
         self.start_character = "<"
         self.end_character = ">"
+        self.vacuum_on_command = "1"
+        self.vacuum_off_command = "2"
         self.fingers_engaged_command = "3"
         self.fingers_disengaged_command = "4"
-        
 
-        
     
     def timer_callback(self):
         "Read all messages in serial"
         todo = 1
-    
 
     def vacuum_service_callback(self, request, response):
         """
         Callback function for the vacuum service. Uses the bool stored in set_vacuum to turn vacuum on/off
         """
+        if request.
+
+
         todo = 1
     
     def fingers_service_callback(self, request, response):

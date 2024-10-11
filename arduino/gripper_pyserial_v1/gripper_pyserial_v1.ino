@@ -7,13 +7,11 @@
  * Colaborators
  */
 
-
-
 // TODO VALVE
-
-// TODO STEPPER
 // TODO SENSOR PRESSURE
 // TODO SENSOR DISTANCE
+
+// TODO STEPPER
 // TODO SERVO
 
 
@@ -89,9 +87,6 @@ void loop(){
 
     //execute command
     parseCommands();
-
-
-
 }
 
 void vacuumOn(){
